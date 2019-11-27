@@ -1,0 +1,22 @@
+{
+  "name": "nodejs-epam",
+  "version": "1.0.0",
+  "description": "NodeJS Global Mentoring Program",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zqh998/nodejs-epam.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zqh998/nodejs-epam/issues"
+  },
+  "homepage": "https://github.com/zqh998/nodejs-epam#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.1"
+  }
+}
