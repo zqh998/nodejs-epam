@@ -15,15 +15,8 @@ fs.writeFile(outFile, '', function (err) {
     if (err) console.error(err);
 });
 
-csv()
-    .fromFile(csvFile)
-    .then((jsonObjArr) => {
-        jsonObjArr.forEach(jsonObj => {
-            delete jsonObj.Amount;
-            writeToFile(outFile, JSON.stringify(jsonObj) + '\n');   
-        });
-    }, (err) => {
-        console.error(err);
-    })
+var readStream = fs.createReadStream(csvFile);
+var writeStream = fs.createWriteStream(outFile);
 
+readStream.pipe(csv()).pipe(writeStream);
 process.stdout.write("\nTransform csv file to txt file successfully!\n");

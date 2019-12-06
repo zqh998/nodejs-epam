@@ -4,17 +4,19 @@ var _lib = require('./lib');
 
 var _csvtojson = require('csvtojson');
 
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var csvFile = './task/1.2/csv/example.csv';
 var outFile = './dist/output.txt';
 
-(0, _csvtojson.csv)().fromFile(csvFile).then(function (jsonObjArr) {
-    jsonObjArr.forEach(function (jsonObj) {
-        delete jsonObj.Amount;
-        (0, _lib.writeToFile)(outFile, JSON.stringify(jsonObj) + '\n');
-    });
-}, function (err) {
-    console.error(err);
-});
+var readStream = _fs2.default.createReadStream(csvFile);
+var writeStream = _fs2.default.createWriteStream(outFile);
+
+readStream.pipe((0, _csvtojson.csv)()).pipe(writeStream);
 
 process.stdout.write("\nTransform csv file to txt file successfully!\n");
 

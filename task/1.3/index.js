@@ -1,19 +1,14 @@
-import { reverse, writeToFile } from './lib';
+import { reverse } from './lib';
 import { csv } from 'csvtojson';
+import fs from 'fs';
 
 const csvFile = './task/1.2/csv/example.csv';
 const outFile = './dist/output.txt';
 
-csv()
-    .fromFile(csvFile)
-    .then((jsonObjArr) => {
-        jsonObjArr.forEach(jsonObj => {
-            delete jsonObj.Amount;
-            writeToFile(outFile, JSON.stringify(jsonObj) + '\n');
-        });
-    }, (err) => {
-        console.error(err);
-    })
+const readStream = fs.createReadStream(csvFile);
+const writeStream = fs.createWriteStream(outFile);
+
+readStream.pipe(csv()).pipe(writeStream);
 
 process.stdout.write("\nTransform csv file to txt file successfully!\n");
 
