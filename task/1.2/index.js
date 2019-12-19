@@ -1,11 +1,4 @@
 
-//append string to file
-function writeToFile(outFile, str) {
-    fs.appendFile(outFile, str, function (err) {
-        if (err) console.error(err);
-    });
-}
-
 var csvFile = './task/1.2/csv/example.csv';
 var csv = require('csvtojson');
 var fs = require("fs");
