@@ -1,70 +1,105 @@
 'use strict';
 
-var _users = require('./users');
-
 var express = require('express');
 var bodyParser = require('body-parser');
-
-var Joi = require('@hapi/joi');
-var validator = require('express-joi-validation').createValidator({});
 
 var app = express();
 app.use(bodyParser.json());
 
+var Sequelize = require('sequelize');
+var sequelize = new Sequelize('postgres://postgres:postgres@localhost:5432/epamdb', {
+    define: {
+        timestamps: false
+    }
+});
+sequelize.authenticate().then(function () {
+    console.log('DBConnection has been established successfully');
+}).catch(function (err) {
+    console.log('Unable to connect to the database:', err);
+});
+
+var User = sequelize.define('user', {
+    id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true
+    },
+    login: {
+        type: Sequelize.STRING(20)
+    },
+    password: {
+        type: Sequelize.STRING(20)
+    },
+    age: {
+        type: Sequelize.INTEGER
+    },
+    isdeleted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    }
+}, {
+    timestamps: false
+});
+User.sync().then(function () {
+    console.log('Sync User model with users table in db successfully');
+});
+
 app.get('/listUsers', function (req, res) {
-    res.json(_users.users);
+    User.findAll().then(function (users) {
+        res.json(users);
+    });
 });
 
 app.get('/user/:id', function (req, res) {
     console.log('get user by id:', req.params.id);
-    var user = _users.users.find(function (item) {
-        return item.id === req.params.id;
-    });
-    if (user) {
-        res.send('get user:\n' + JSON.stringify(user));
-    } else {
+    User.findAll({ where: { id: req.params.id } }).then(function (users) {
+        if (users && users.length > 0) {
+            res.send('get user:\n' + JSON.stringify(users[0]));
+        } else {
+            res.send('invalid user id:' + req.params.id);
+        }
+    }).catch(function (err) {
         console.log('invalid user id:', req.params.id);
-    }
+    });
 });
 
-var schema = Joi.object({
-    id: Joi.string().required(),
-    login: Joi.string().required(),
-    password: Joi.string().alphanum().required(),
-    age: Joi.number().min(4).max(130).required(),
-    isDeleted: Joi.boolean().required()
+app.get('/deleteUser/:id', function (req, res) {
+    console.log('delete user by id:', req.params.id);
+    User.findAll({ where: { id: req.params.id } }).then(function (users) {
+        if (!users || users.length == 0) {
+            res.send('invalid user id:' + req.params.id);
+        }
+    });
+    User.update({ isdeleted: true }, { where: { id: req.params.id } }).then(function () {
+        res.send("user is marked as 'deleted' successfully");
+    }).catch(function (err) {
+        console.log('invalid user id:', req.params.id);
+    });
 });
 
-app.post('/createOrUpdateUser', validator.body(schema), function (req, res) {
+app.post('/createOrUpdateUser', function (req, res) {
     var user = req.body;
-    console.log(user);
+    console.log('user:', user);
 
     if (user && user.id) {
-        var index = _users.users.findIndex(function (item) {
-            return item.id === user.id;
+        User.findAll({ where: { id: user.id } }).then(function (users) {
+            if (users && users.length > 0) {
+                //update
+                User.update(user, { where: { id: user.id } }).then(function () {
+                    res.send(" Update user: " + user.login + "successfully!");
+                }).catch(function (err) {
+                    res.send('invalid user:' + err);
+                });
+            } else {
+                //create
+                User.create(user).then(function (retUser) {
+                    res.send(" Create user: " + retUser.login + "successfully!");
+                }).catch(function (err) {
+                    res.send('invalid user:' + err);
+                });;
+            }
         });
-        if (index >= 0) {
-            //update
-            _users.users[index] = user;
-            res.send(" update user successfully!");
-        } else {
-            //create
-            _users.users.push(user);
-            res.send(" add user successfully!");
-        }
     } else {
         res.send(" invalid user!");
-    }
-});
-
-app.use(function (err, req, res, next) {
-    if (err) {
-        res.status(400).json({
-            message: err.toString()
-        });
-    } else {
-        // pass on to another error handler
-        next(err);
     }
 });
 

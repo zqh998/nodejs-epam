@@ -12,7 +12,9 @@
     "build2.1": "rimraf dist/ && babel --presets es2015 -d dist/ task/2.1",
     "task2.1": "npm run build2.1 && node dist/index.js",
     "build2.2": "rimraf dist/ && babel --presets es2015 -d dist/ task/2.2",
-    "task2.2": "npm run build2.2 && node dist/index.js"
+    "task2.2": "npm run build2.2 && node dist/index.js",
+    "build3": "rimraf dist/ && babel --presets es2015 -d dist/ task/3",
+    "task3": "npm run build3 && node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,9 @@
     "@hapi/joi": "^16.1.8",
     "csvtojson": "^2.0.10",
     "express": "^4.17.1",
-    "express-joi-validation": "^4.0.3"
+    "express-joi-validation": "^4.0.3",
+    "pg": "^7.17.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.3"
   }
 }
